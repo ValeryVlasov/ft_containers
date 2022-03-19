@@ -1,4 +1,5 @@
-#include <iostream.h>
+#ifndef STACK_HPP
+#define STACK_HPP
 
 namespace ft
 {
@@ -48,3 +49,5 @@ namespace ft
 		return ( lhs.C > rhs.C );
 	}
 }
+
+#endif
