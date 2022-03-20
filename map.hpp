@@ -1,5 +1,5 @@
-#ifndef MAP_HPP
-#define MAP_HPP
+#ifndef FTMAP_HPP
+#define FTMAP_HPP
 
 
 

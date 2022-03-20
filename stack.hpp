@@ -1,5 +1,5 @@
-#ifndef STACK_HPP
-#define STACK_HPP
+#ifndef FTSTACK_HPP
+#define FTSTACK_HPP
 
 namespace ft
 {
@@ -15,6 +15,7 @@ namespace ft
 //		typedef typename Container::reference reference;
 //		typedef typename Container::const_reference const_reference;
 	public:
+		stack() : C() {}
 		explicit stack (const container_type& ctnr = container_type()) : C(cntr) {}
 		bool empty() const { return (C.empty()); }
 		size_type size() const { return (C.size()); }
@@ -30,7 +31,7 @@ namespace ft
 	}
 	template< class T, class Container >
 	bool operator!=( const stack<T,Container>& lhs, const stack<T,Container>& rhs ) {
-		return ( lhs.C != rhs.C );
+		return !( lhs.C == rhs.C );
 	}
 	template< class T, class Container >
 	bool operator<( const stack<T,Container>& lhs, const stack<T,Container>& rhs ) {
@@ -38,15 +39,15 @@ namespace ft
 	}
 	template< class T, class Container >
 	bool operator<=( const stack<T,Container>& lhs, const stack<T,Container>& rhs ) {
-		return ( lhs.C <= rhc.C );
+		return !( rhs.C < lhs.C );
 	}
 	template< class T, class Container >
 	bool operator>( const stack<T,Container>& lhs, const stack<T,Container>& rhs ) {
-		return ( lhs.C > rhs.C );
+		return ( rhs.C > lhs.C );
 	}
 	template< class T, class Container >
 	bool operator>=( const stack<T,Container>& lhs, const stack<T,Container>& rhs ) {
-		return ( lhs.C > rhs.C );
+		return !( lhs.C < rhs.C );
 	}
 }
 

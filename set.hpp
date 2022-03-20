@@ -1,4 +1,4 @@
-#ifndef SET_HPP
-#define SET_HPP
+#ifndef FTSET_HPP
+#define FTSET_HPP
 
 #endif
