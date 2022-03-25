@@ -33,20 +33,29 @@ int main()
 	vec2.push_back(3);
 	vec2.push_back(5);
 	vec2.push_back(7);
-	std::cout << "Start of vec:";
-	for (auto it : vec)
-		std::cout << it << " ";
-	std::cout << "\nEnd of vec.\n";
-	std::cout << "Start of vec2:";
-	for (auto it : vec2)
-		std::cout << it << " ";
-	std::cout << "\nEnd of vec2.\n";
-	std::cout << "ft::comp: " << ft::lexicographical_compare(vec.begin(), vec.end(), vec2.begin(), vec2.end()) << std::endl;
-	std::cout << "std::comp: " << std::lexicographical_compare(vec.begin(), vec.end(), vec2.begin(), vec2.end()) << std::endl;
-	std::cout << "ft::equal: " << ft::equal(vec.begin(), vec.end(), vec2.begin()) << std::endl;
-	std::cout << "std::equal: " << std::equal(vec.begin(), vec.end(), vec2.begin()) << std::endl;
-	std::cout << "ft::dist: " << ft::distance(vec.begin(), vec.end()) << std::endl;
-	std::cout << "std::dist: " << std::distance(vec.begin(), vec.end()) << std::endl;
+	std::cout << "1 capacity = " << vec.capacity() << ", 2 capacity = " << vec2.capacity() << std::endl;
+	std::vector<int> vec3(0);
+	vec3.push_back(10);
+	vec3.push_back(10);
+	std::cout << "3 capacity = " << vec3.capacity() << std::endl;
+	vec3.resize(20);
+	std::cout << "3 capacity = " << vec3.capacity() << std::endl;
+	vec = vec3;
+	std::cout << "1 capacity = " << vec.capacity() << ", " << vec[1] << std::endl;
+//	std::cout << "Start of vec:";
+//	for (auto it : vec)
+//		std::cout << it << " ";
+//	std::cout << "\nEnd of vec.\n";
+//	std::cout << "Start of vec2:";
+//	for (auto it : vec2)
+//		std::cout << it << " ";
+//	std::cout << "\nEnd of vec2.\n";
+//	std::cout << "ft::comp: " << ft::lexicographical_compare(vec.begin(), vec.end(), vec2.begin(), vec2.end()) << std::endl;
+//	std::cout << "std::comp: " << std::lexicographical_compare(vec.begin(), vec.end(), vec2.begin(), vec2.end()) << std::endl;
+//	std::cout << "ft::equal: " << ft::equal(vec.begin(), vec.end(), vec2.begin()) << std::endl;
+//	std::cout << "std::equal: " << std::equal(vec.begin(), vec.end(), vec2.begin()) << std::endl;
+//	std::cout << "ft::dist: " << ft::distance(vec.begin(), vec.end()) << std::endl;
+//	std::cout << "std::dist: " << std::distance(vec.begin(), vec.end()) << std::endl;
 	printf("Success\n");
 	return 0;
 }
