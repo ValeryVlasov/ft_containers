@@ -9,15 +9,76 @@ namespace ft {
 	template < class T, class Allocator >
 	class ft_iterator
 	{
-	protected:
-
-	private:
+	public:
 		typedef T value_type;
-		typedef typename Allocator::reference Reference;
+		typedef typename Allocator::reference reference;
 		typedef typename Allocator::pointer pointer;
 		typedef typename Allocator::difference_type difference_type;
-		typedef random_access_iterator_tag
+		typedef random_access_iterator_tag iterator_category;
+	protected:
+		pointer _current;
 	public:
+		ft_iterator() : _current(nullptr) {}
+		explicit ft_iterator(pointer ptr) : _current(ptr) {}
+		~ft_iterator();
+
+		template<class U>
+		ft_iterator(const ft_iterator<U, Allocator>& u) : _current(u.base()) {}
+
+		pointer base(void) const { return _current; }
+
+		template < class It >
+		ft_iterator& operator=(const ft_iterator<It, Allocator>& other) {
+			this->_current = other.base();
+			return *this;
+		}
+
+		reference operator*() const { return *this->_current; }
+		reference operator->() const { return this->_current; }
+
+
+		reference operator[](difference_type n) { return &(*this + n); }
+		const reference operator[](difference_type n) const { return &(*this + n); }
+		ft_iterator& operator++() {
+			++_current;
+			return *this;
+		}
+		ft_iterator& operator--() {
+			--_current;
+			return *this;
+		}
+		ft_iterator operator--(int) {
+			ft_iterator _it = *this;
+			--_current;
+			return _it;
+		}
+		ft_iterator operator++(int) {
+			ft_iterator _it = *this;
+			++_current;
+			return _it;
+		}
+		ft_iterator operator-(difference_type n) const { return ft_iterator(_current - n); }
+		ft_iterator operator+(difference_type n) const { return ft_iterator(_current + n); }
+		ft_iterator& operator-=(difference_type n) const { _current -= n; return *this; }
+		ft_iterator& operator+=(difference_type n) const { _current += n; return *this; }
+
+		template < class Iterator2 >
+		bool operator==(const ft_iterator<Iterator2, Allocator>& other) { return this->base() == other.base(); }
+
+		template < class Iterator2 >
+		bool operator!=(const ft_iterator<Iterator2, Allocator>& other) { return !(this->base() == other.base()); }
+
+		template < class Iterator2 >
+		bool operator>=(const ft_iterator<Iterator2, Allocator>& other) { return !(this->base() < other.base()); }
+
+		template < class Iterator2 >
+		bool operator<=(const ft_iterator<Iterator2, Allocator>& other) { return !(other.base() < this->base()); }
+
+		template < class Iterator2 >
+		bool operator>(const ft_iterator<Iterator2, Allocator>& other) { return other.base() < this->base(); }
+
+		template < class Iterator2 >
+		bool operator<(const ft_iterator<Iterator2, Allocator>& other) { return this->base() < other.base(); }
 
 	};
 
