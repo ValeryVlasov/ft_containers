@@ -7,7 +7,7 @@
 
 namespace ft {
 
-	template < class T, class Allocator >
+	template < class T, class Allocator = std::allocator<T> >
 	class ft_iterator
 	{
 	public:
@@ -58,8 +58,15 @@ namespace ft {
 			++_current;
 			return _it;
 		}
-		ft_iterator operator-(difference_type n) const { return ft_iterator(_current - n); }
-		ft_iterator operator+(difference_type n) const { return ft_iterator(_current + n); }
+		ft_iterator operator-(difference_type n) const {
+			ft_iterator tmp(*this);
+			return (tmp -= n);
+		}
+		difference_type operator-(const ft_iterator &other) const { return _current - other._current; }
+		ft_iterator operator+(difference_type n) const {
+			ft_iterator tmp(*this);
+			return (tmp += n);
+		}
 		ft_iterator& operator-=(difference_type n) const { _current -= n; return *this; }
 		ft_iterator& operator+=(difference_type n) const { _current += n; return *this; }
 
@@ -89,16 +96,16 @@ namespace ft {
 	protected:
 
 	public:
-		typedef T												value_type;
 		typedef Alloc											allocator_type;
+		typedef typename allocator_type::value_type				value_type;
 		typedef typename allocator_type::difference_type		difference_type;
 		typedef typename allocator_type::size_type				size_type;
 		typedef typename allocator_type::reference				reference;
 		typedef typename allocator_type::const_reference		const_reference;
 		typedef typename allocator_type::pointer				pointer;
 		typedef typename allocator_type::const_pointer			const_pointer;
-		typedef ft_iterator<value_type, allocator_type>			iterator;
-		typedef ft_iterator<const value_type, allocator_type>	const_iterator;
+		typedef ft_iterator<value_type>							iterator;// ft::reverse_iterator<ft_iterator<Alloc::value_type>>
+		typedef const ft_iterator<value_type>					const_iterator;
 		typedef ft::reverse_iterator<iterator>					reverse_iterator;
 		typedef ft::reverse_iterator<const_iterator>			const_reverse_iterator;
 	private:
@@ -109,12 +116,12 @@ namespace ft {
 
 
 		void _clearData(iterator begin, iterator end) {
-			for (iterator it = begin, it != end, it++)
+			for (iterator it = begin; it != end; it++)
 				this->alloc.destroy(it.base());
 		}
 
 		void _fillData(iterator begin, iterator end, value_type &val) {
-			for (iterator it = begin, it != end, it++)
+			for (iterator it = begin; it != end; it++)
 				this->alloc.construct(it.base(), val);
 		}
 
@@ -130,10 +137,10 @@ namespace ft {
 			std::copy(this->begin(), this->end(), tmp_alloc);
 			this->_clearData(this->begin(), this->end());
 			this->alloc.deallocate(this->_data, this->_capacity);
-			this->_reAssignVector(tmp_alloc, new_capacity, this->_size)
+			this->_reAssignVector(tmp_alloc, new_capacity, this->_size);
 		}
 
-		void _increasedCapacity(size_type new_capacity) { return static_cast<int>(new_capacity * 2); }
+		int _increasedCapacity(size_type new_capacity) { return static_cast<int>(new_capacity * 2); }
 
 	public:
 		explicit vector(const allocator_type& alloc = allocator_type()) : _size(0), _capacity(0), _data(nullptr), alloc(alloc) {}
@@ -212,7 +219,7 @@ namespace ft {
 			}
 		}
 		void reserve(size_type new_cap) {//+
-			if (new_cap > max_size()) throw std::length_error();
+			if (new_cap > max_size()) throw std::length_error("length error");
 			if (new_cap > this->_capacity) {
 				this->_reAlloc(new_cap);
 			}
@@ -229,8 +236,8 @@ namespace ft {
 		const_iterator			end() const { return const_iterator(this->_data + this->size()); }
 		reverse_iterator		rbegin() { return reverse_iterator(this->end()); }
 		const_reverse_iterator	rbegin() const { return const_reverse_iterator(this->end()); }
-		reverse_iterator		rend() { return reverse_iterator(this->begin(); }
-		const_reverse_iterator	rend() const { return const_reverse_iterator(this->begin(); }
+		reverse_iterator		rend() { return reverse_iterator(this->begin()); }
+		const_reverse_iterator	rend() const { return const_reverse_iterator(this->begin()); }
 		/*      		Iterators			 */
 
 		/*      		Modifiers			 */
@@ -243,13 +250,13 @@ namespace ft {
 		iterator erase(iterator first, iterator second) {//+
 			if (second == end()) {
 				this->_clearData(first, second);
-				this->_size -= ft::distance(first, second)//std or ft?
+				this->_size -= ft::distance(first, second);//std or ft?
 				return this->end();
 			}
 			else {
 				this->_clearData(first, second);
 				std::copy(second, this->end(), first);
-				this->_size -= ft::distance(first, second)//std or ft?
+				this->_size -= ft::distance(first, second);//std or ft?
 				return first;
 			}
 		}
@@ -271,7 +278,7 @@ namespace ft {
 			difference_type diff = ft::distance(second - first);//ft or std?
 			if (diff < 0)
 				throw std::range_error("Error! Wrong iterators range");
-			size_type size = <static_cast<size_type>(diff);
+			size_type size = static_cast<size_type>(diff);
 			if (size > this->capacity()) {
 				this->clear();
 				this->_capacity = size;
@@ -323,7 +330,7 @@ namespace ft {
 				iterator prev_end = this->end();
 				this->_size += count;
 				std::copy_backward(pos, prev_end, this->end());
-				this->_fillData(pos, pos + count, val);
+				this->_fillData(pos, pos + count, value);
 			}
 		}
 

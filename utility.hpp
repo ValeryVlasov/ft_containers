@@ -4,7 +4,7 @@
 namespace ft {
 	struct output_iterator_tag {	};
 	struct input_iterator_tag {	};
-	struct forward_iterator_tag : public input_iterator_tag {	};
+	struct forward_iterator_tag : public output_iterator_tag, public input_iterator_tag { };
 	struct bidirectional_iterator_tag : public forward_iterator_tag {	};
 	struct random_access_iterator_tag : public bidirectional_iterator_tag {	};
 
@@ -129,17 +129,17 @@ namespace ft {
 	}
 
 	template < class InputIt >
-	typename ft::iterator_traits<InputIt>::difference_type Distance(const InputIt& first, const InputIt& last, ft::random_access_iterator_tag) {
+	typename ft::iterator_traits<InputIt>::difference_type Distance(const InputIt& first, const InputIt& last, ft::random_access_iterator_tag &) {
 		return (last - first);
 	}
 
-	template <class Iterator>
-	typename ft::iterator_traits<Iterator>::difference_type Distance(const Iterator& first, const Iterator& last, std::random_access_iterator_tag) {
-		return last - first;
-	}
+//	template <class Iterator>
+//	typename ft::iterator_traits<Iterator>::difference_type Distance(const Iterator& first, const Iterator& last, std::random_access_iterator_tag) {
+//		return last - first;
+//	}
 
-	template < class InputIt >
-	typename ft::iterator_traits<InputIt>::difference_type Distance(const InputIt& first, const InputIt& last, ft::input_iterator_tag) {
+	template < class InputIt , class Category>
+	typename ft::iterator_traits<InputIt>::difference_type Distance(const InputIt& first, const InputIt& last, Category &) {
 		typename ft::iterator_traits<InputIt>::difference_type result = 0;
 		while (first != last)
 		{
@@ -151,7 +151,8 @@ namespace ft {
 
 	template < class InputIt >
 	typename ft::iterator_traits<InputIt>::difference_type distance(const InputIt& first, const InputIt& last) {
-		return ft::Distance(first, last, typename ft::iterator_traits<InputIt>::iterator_category());
+		typename ft::iterator_traits<InputIt>::iterator_category category;
+		return ft::Distance(first, last, category);
 	}
 
 	template < class T, bool v >
