@@ -29,25 +29,22 @@ namespace ft {
 	template < class T >
 	struct iterator_traits< T* >
 	{
-		typedef size_t						difference_type;
-		typedef T							value_type;
-		typedef T*							pointer;
-		typedef T&							reference;
-		typedef random_access_iterator_tag	iterator_category;
+		typedef size_t							difference_type;
+		typedef T								value_type;
+		typedef T*								pointer;
+		typedef T&								reference;
+		typedef std::random_access_iterator_tag	iterator_category;
 	};
 
 	template < class T >
 	struct iterator_traits < const T* >
 	{
-		typedef size_t						difference_type;
-		typedef T							value_type;
-		typedef const T*					pointer;
-		typedef const T&					reference;
-		typedef random_access_iterator_tag	iterator_category;
+		typedef size_t							difference_type;
+		typedef T								value_type;
+		typedef const T*						pointer;
+		typedef const T&						reference;
+		typedef std::random_access_iterator_tag	iterator_category;
 	};
-
-	template < class Category, class T, class Distance = size_t, class pointer = T*, class Reference = T& >
-	class iterator;//
 
 	template < class Iter >
 	class reverse_iterator
@@ -64,10 +61,10 @@ namespace ft {
 	public:
 		reverse_iterator() : current(nullptr) {}
 		explicit reverse_iterator(Iter _It) : current(_It) {}
-		~reverse_iterator() {}
-
 		template<class U>
 		reverse_iterator(const reverse_iterator<U>& u) : current(u.base()) {}
+
+		~reverse_iterator() {}
 
 		template < class It > reverse_iterator& operator=(const reverse_iterator<It>& other) {
 			this->current = other.base();
@@ -129,17 +126,17 @@ namespace ft {
 	}
 
 	template < class InputIt >
-	typename ft::iterator_traits<InputIt>::difference_type Distance(const InputIt& first, const InputIt& last, ft::random_access_iterator_tag &) {
+	typename ft::iterator_traits<InputIt>::difference_type Distance(const InputIt& first, const InputIt& last, ft::random_access_iterator_tag) {
 		return (last - first);
 	}
 
-//	template <class Iterator>
-//	typename ft::iterator_traits<Iterator>::difference_type Distance(const Iterator& first, const Iterator& last, std::random_access_iterator_tag) {
+//	template < class InputIt >
+//	typename ft::iterator_traits<InputIt>::difference_type Distance(const InputIt& first, const InputIt& last, std::random_access_iterator_tag) {
 //		return last - first;
 //	}
 
 	template < class InputIt , class Category>
-	typename ft::iterator_traits<InputIt>::difference_type Distance(const InputIt& first, const InputIt& last, Category &) {
+	typename ft::iterator_traits<InputIt>::difference_type Distance(InputIt first, InputIt last, Category &) {
 		typename ft::iterator_traits<InputIt>::difference_type result = 0;
 		while (first != last)
 		{

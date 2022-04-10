@@ -4,6 +4,7 @@
 #include <vector>
 #include <iterator>
 #include "utility.hpp"
+#include <unistd.h>
 
 namespace ft {
 
@@ -15,13 +16,13 @@ namespace ft {
 		typedef typename Allocator::reference reference;
 		typedef typename Allocator::pointer pointer;
 		typedef typename Allocator::difference_type difference_type;
-		typedef random_access_iterator_tag iterator_category;
+		typedef std::random_access_iterator_tag iterator_category;
 	protected:
 		pointer _current;
 	public:
 		ft_iterator() : _current(nullptr) {}
 		explicit ft_iterator(pointer ptr) : _current(ptr) {}
-		~ft_iterator();
+		~ft_iterator() {}
 
 		template<class U>
 		ft_iterator(const ft_iterator<U, Allocator>& u) : _current(u.base()) {}
@@ -67,8 +68,8 @@ namespace ft {
 			ft_iterator tmp(*this);
 			return (tmp += n);
 		}
-		ft_iterator& operator-=(difference_type n) const { _current -= n; return *this; }
-		ft_iterator& operator+=(difference_type n) const { _current += n; return *this; }
+		ft_iterator& operator-=(difference_type n) { _current -= n; return *this; }
+		ft_iterator& operator+=(difference_type n) { _current += n; return *this; }
 
 		template < class Iterator2 >
 		bool operator==(const ft_iterator<Iterator2, Allocator>& other) { return this->base() == other.base(); }
@@ -116,11 +117,12 @@ namespace ft {
 
 
 		void _clearData(iterator begin, iterator end) {
-			for (iterator it = begin; it != end; it++)
+			for (iterator it = begin; it != end; it++) {
 				this->alloc.destroy(it.base());
+			}
 		}
 
-		void _fillData(iterator begin, iterator end, value_type &val) {
+		void _fillData(iterator begin, iterator end, const value_type &val) {
 			for (iterator it = begin; it != end; it++)
 				this->alloc.construct(it.base(), val);
 		}
@@ -150,44 +152,50 @@ namespace ft {
 			for (size_type i = 0; i < n; i++)
 				this->alloc.construct(this->_data + i, val);
 		}
-
-		template<class InputIterator>
-		vector(InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type())
+		template<class InputIt>
+		vector(InputIt first, InputIt last, const allocator_type& alloc = allocator_type(), typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type* = NULL)
 		: alloc(alloc) {
-			difference_type diff = ft::distance(first, last);//std or ft?
-			if (diff < 0) throw std::range_error("Error! Wrong iterators range!");
-			size_type new_size = static_cast<size_type>(diff);
-			size_type new_capacity = this->_increasedCapacity(new_size);
-			this->_data = this->alloc.allocate(new_capacity);
-			std::copy(first, last, this->begin());
+//			std::cerr << "1242412341234" << std::endl;
+//			difference_type diff = std::distance(first, last);
+//			std::cerr << "diff = " << diff << std::endl;
+//			if (diff < 0) throw std::range_error("Error! Wrong iterators range!");
+//			size_type new_size = static_cast<size_type>(diff);
+//			size_type new_capacity = this->_increasedCapacity(new_size);
+//			this->_data = this->alloc.allocate(new_capacity);
+//			std::copy(first, last, this->begin());
 		}
 		vector(const vector& another) : alloc(another.alloc), _size(another._size), _capacity(another._capacity) {
 			this->_data = this->alloc.allocate(another._capacity);
 			std::copy(another.begin(), another.end(), this->begin());
 		}
-		~vector() { this->clear(); }
+
+		~vector() { this->clear(); }//CHECK
 
 		vector &operator=(const vector& another) {
 			this->clear();
 			this->_size = another._size;
 			this->_capacity = another._capacity;
 			this->alloc = another.alloc;
-			this->assign(another.begin(), another.end());
+			this->_data = this->alloc.allocate(another._capacity);
+
+			for (size_type i = 0; i < another._size; i++){
+				this->alloc.construct(_data + i, *(another._data + i));
+			}
 			return *this;
 		}
 
 		/*      		Element access			 */
 		reference			at(size_type pos)  {
 			if (!(pos < size())) throw std::out_of_range("Out of range!");
-			return *(this->_data + pos);
+			return this->_data[pos];
 		}
 		const_reference		at(size_type pos) const {
 			if (!(pos < size())) throw std::out_of_range("Out of range!");
-			return *(this->_data + pos);
+			return this->_data[pos];
 		}
 
-		reference			operator[](size_type pos) { return *(_data + pos); }
-		const_reference		operator[](size_type pos) const { return *(_data + pos); }
+		reference			operator[](size_type pos) { return *(this->_data + pos); }
+		const_reference		operator[](size_type pos) const { return *(this->_data + pos); }
 		reference			front(void) { return *begin(); }//+
 		const_reference		front(void) const { return *begin(); }//+
 		reference			back(void) { return *(end() - 1); }//+
@@ -200,7 +208,7 @@ namespace ft {
 		/*      		Capacity			 */
 
 		bool empty() const { return size() == 0; }//+
-		size_type size() const { return ft::distance(begin(), end()); }//+
+		size_type size() const { return this->_size; }//+   std::distance(begin(), end()
 		size_type max_size() const { return this->alloc.max_size(); }//+
 		void	resize(size_type n, value_type val = value_type()) {//+
 			if (n == this->_size) return;
@@ -232,8 +240,8 @@ namespace ft {
 		/*      		Iterators			 */
 		iterator				begin() { return iterator(this->_data); }
 		const_iterator			begin() const { return const_iterator(this->_data); }
-		iterator				end() { return iterator(this->_data + this->size()); }
-		const_iterator			end() const { return const_iterator(this->_data + this->size()); }
+		iterator				end() { return iterator(this->_data + this->_size); }
+		const_iterator			end() const { return const_iterator(this->_data + this->_size); }
 		reverse_iterator		rbegin() { return reverse_iterator(this->end()); }
 		const_reverse_iterator	rbegin() const { return const_reverse_iterator(this->end()); }
 		reverse_iterator		rend() { return reverse_iterator(this->begin()); }
@@ -248,15 +256,14 @@ namespace ft {
 		}
 		iterator erase(iterator pos) { return erase(pos, pos + 1); }//+
 		iterator erase(iterator first, iterator second) {//+
+			this->_clearData(first, second);
 			if (second == end()) {
-				this->_clearData(first, second);
-				this->_size -= ft::distance(first, second);//std or ft?
+				this->_size -= std::distance(first, second);
 				return this->end();
 			}
 			else {
-				this->_clearData(first, second);
 				std::copy(second, this->end(), first);
-				this->_size -= ft::distance(first, second);//std or ft?
+				this->_size -= std::distance(first, second);
 				return first;
 			}
 		}
@@ -274,18 +281,19 @@ namespace ft {
 		}
 
 		template < class InputIterator >
-				void assign (InputIterator first, InputIterator second) {//+
-			difference_type diff = ft::distance(second - first);//ft or std?
+				void assign (const InputIterator &first, const InputIterator &second, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type* = NULL) {//+
+			difference_type diff = std::distance(first, second);
 			if (diff < 0)
 				throw std::range_error("Error! Wrong iterators range");
 			size_type size = static_cast<size_type>(diff);
-			if (size > this->capacity()) {
+			if (size >= this->_capacity) {
 				this->clear();
 				this->_capacity = size;
 				this->_data = this->alloc.allocate(size);
 			}
-			else
+			else {
 				this->_clearData(this->begin(), this->end());
+			}
 			this->_size = size;
 			std::copy(first, second, this->begin());
 		}
@@ -303,12 +311,12 @@ namespace ft {
 
 		void pop_back() {//+
 			if (this->_size == 0) return ;
-			this->_clearData(this->end() - 1, this->end());
+			this->_clearData(this->end() - 1, this->end());//CHECK
 			this->_size--;
 		}
 
 		iterator insert(iterator pos, const value_type& value) {//+
-			difference_type dist = ft::distance(this->begin(), pos);//std or ft?
+			difference_type dist = std::distance(this->begin(), pos);
 			insert(pos, 1, value);
 			return (this->begin() + dist);
 		}
@@ -320,7 +328,7 @@ namespace ft {
 				pointer new_data = this->alloc.allocate(new_capacity);
 				iterator tmp_it = iterator(new_data);
 				std::copy(this->begin(), pos, tmp_it);
-				tmp_it += ft::distance(this->begin(), pos);//std or ft?
+				tmp_it += std::distance(this->begin(), pos);
 				this->_fillData(tmp_it, tmp_it + count, value);
 				std::copy(pos, this->end(), tmp_it + count);
 				this->clear();
@@ -335,8 +343,8 @@ namespace ft {
 		}
 
 		template< class InputIt >
-		void insert( iterator pos, InputIt first, InputIt last ) {//+
-			difference_type dist = ft::distance(first, last);//std or ft?
+		void insert( iterator pos, InputIt first, InputIt last, typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type* = NULL) {//+
+			difference_type dist = std::distance(first, last);
 			size_type dst = static_cast<size_type>(dist);
 			if (this->_size + dst > this->_capacity) {
 				size_type new_size = dst + this->_size;
@@ -344,7 +352,7 @@ namespace ft {
 				pointer new_data = this->alloc.allocate(new_capacity);
 				iterator tmp_it = iterator(new_data);
 				std::copy(this->begin(), pos, tmp_it);
-				tmp_it += ft::distance(this->begin(), pos);//std or ft?
+				tmp_it += std::distance(this->begin(), pos);
 				std::copy(first, last, tmp_it);
 				std::copy(pos, this->end(), tmp_it + dst);
 				this->clear();
@@ -387,7 +395,7 @@ namespace ft {
 	}
 	template < class T, class A >
 	bool operator<(const vector<T, A>& lhs, const vector<T, A>& rhs) {
-		return (lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
+		return (ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
 	}
 	template < class T, class A >
 	bool operator<=(const vector<T, A>& lhs, const vector<T, A>& rhs) {
