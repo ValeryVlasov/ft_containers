@@ -59,7 +59,7 @@ namespace ft {
 	protected:
 		iterator_type current;
 	public:
-		reverse_iterator() : current(nullptr) {}
+		reverse_iterator() : current(0) {}
 		explicit reverse_iterator(Iter _It) : current(_It) {}
 		template<class U>
 		reverse_iterator(const reverse_iterator<U>& u) : current(u.base()) {}
