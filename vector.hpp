@@ -7,33 +7,29 @@
 #include <unistd.h>
 
 #include <memory>
-
 namespace ft {
 
-	template < class T, class Allocator = std::allocator<T> >
-	class ft_iterator
+	template < class T >
+	class ft_iterator : public iterator_traits<T*>
 	{
 	public:
-		typedef T value_type;
-		typedef typename Allocator::reference reference;
-		typedef typename Allocator::pointer pointer;
-		typedef typename Allocator::difference_type difference_type;
-		typedef std::random_access_iterator_tag iterator_category;
+		typedef T												value_type;
+		typedef typename iterator_traits<T*>::pointer			pointer;
+		typedef typename iterator_traits<T*>::reference			reference;
+		typedef typename iterator_traits<T*>::difference_type	difference_type;
+		typedef std::random_access_iterator_tag					iterator_category;
 	protected:
 		pointer _current;
 	public:
 		ft_iterator() : _current(0) {}
-		explicit ft_iterator(pointer ptr) : _current(ptr) {}
-		~ft_iterator() {}
+		ft_iterator(pointer ptr) : _current(ptr) {}
+		ft_iterator(const ft_iterator& u) : _current(u.GetPtr()) {}
+		~ft_iterator() { this->_current = NULL; }
 
-		template<class U>
-		ft_iterator(const ft_iterator<U, Allocator>& u) : _current(u.base()) {}
+		pointer GetPtr(void) const { return _current; }
 
-		pointer base(void) const { return _current; }
-
-		template < class It >
-		ft_iterator& operator=(const ft_iterator<It, Allocator>& other) {
-			this->_current = other.base();
+		ft_iterator& operator=(const ft_iterator& other) {
+			this->_current = other.GetPtr();
 			return *this;
 		}
 
@@ -43,55 +39,63 @@ namespace ft {
 
 		reference operator[](difference_type n) { return &(*this + n); }
 		const reference operator[](difference_type n) const { return &(*this + n); }
+
 		ft_iterator& operator++() {
 			++_current;
 			return *this;
 		}
+
 		ft_iterator& operator--() {
 			--_current;
 			return *this;
 		}
+
 		ft_iterator operator--(int) {
 			ft_iterator _it = *this;
 			--_current;
 			return _it;
 		}
+
 		ft_iterator operator++(int) {
 			ft_iterator _it = *this;
 			++_current;
 			return _it;
 		}
+
 		ft_iterator operator-(difference_type n) const {
 			ft_iterator tmp(*this);
 			return (tmp -= n);
 		}
-		difference_type operator-(const ft_iterator &other) const { return _current - other._current; }
+
+		difference_type operator-(const ft_iterator &other) const { return _current - other.GetPtr(); }
+
 		ft_iterator operator+(difference_type n) const {
 			ft_iterator tmp(*this);
 			return (tmp += n);
 		}
+
 		ft_iterator& operator-=(difference_type n) { _current -= n; return *this; }
 		ft_iterator& operator+=(difference_type n) { _current += n; return *this; }
 
-		template < class Iterator2 >
-		bool operator==(const ft_iterator<Iterator2, Allocator>& other) { return this->base() == other.base(); }
-
-		template < class Iterator2 >
-		bool operator!=(const ft_iterator<Iterator2, Allocator>& other) { return !(this->base() == other.base()); }
-
-		template < class Iterator2 >
-		bool operator>=(const ft_iterator<Iterator2, Allocator>& other) { return !(this->base() < other.base()); }
-
-		template < class Iterator2 >
-		bool operator<=(const ft_iterator<Iterator2, Allocator>& other) { return !(other.base() < this->base()); }
-
-		template < class Iterator2 >
-		bool operator>(const ft_iterator<Iterator2, Allocator>& other) { return other.base() < this->base(); }
-
-		template < class Iterator2 >
-		bool operator<(const ft_iterator<Iterator2, Allocator>& other) { return this->base() < other.base(); }
-
 	};
+
+	template < class It1, class It2 >
+	bool operator==(const ft_iterator<It1>&lhs, const ft_iterator<It2>& rhs) { return lhs.GetPtr() == rhs.GetPtr(); }
+
+	template < class It1, class It2 >
+	bool operator!=(const ft_iterator<It1>&lhs, const ft_iterator<It2>& rhs) { return !(lhs == rhs); }
+
+	template < class It1, class It2 >
+	bool operator>=(const ft_iterator<It1>&lhs, const ft_iterator<It2>& rhs) { return !(lhs < rhs); }
+
+	template < class It1, class It2 >
+	bool operator<=(const ft_iterator<It1>&lhs, const ft_iterator<It2>& rhs) { return !(rhs < lhs); }
+
+	template < class It1, class It2 >
+	bool operator>(const ft_iterator<It1>&lhs, const ft_iterator<It2>& rhs) { return rhs < lhs; }
+
+	template < class It1, class It2 >
+	bool operator<(const ft_iterator<It1>&lhs, const ft_iterator<It2>& rhs) { return lhs.GetPtr() < rhs.GetPtr(); }
 
 	template < class T, class Alloc = std::allocator<T> >
 	class vector
@@ -107,8 +111,8 @@ namespace ft {
 		typedef typename allocator_type::const_reference		const_reference;
 		typedef typename allocator_type::pointer				pointer;
 		typedef typename allocator_type::const_pointer			const_pointer;
-		typedef ft_iterator<value_type>							iterator;// ft::reverse_iterator<ft_iterator<Alloc::value_type>>
-		typedef const ft_iterator<value_type>					const_iterator;
+		typedef ft_iterator<T>									iterator;// ft::reverse_iterator<ft_iterator<Alloc::value_type>>
+		typedef ft_iterator<const T>							const_iterator;
 		typedef ft::reverse_iterator<iterator>					reverse_iterator;
 		typedef ft::reverse_iterator<const_iterator>			const_reverse_iterator;
 	private:
@@ -119,14 +123,14 @@ namespace ft {
 
 
 		void _clearData(iterator begin, iterator end) {
-			for (iterator it = begin; it != end; it++) {
-				this->alloc.destroy(it.base());
+			for (iterator it = begin; it != end; ++it) {
+				this->alloc.destroy(it.GetPtr());
 			}
 		}
 
 		void _fillData(iterator begin, iterator end, const value_type &val) {
-			for (iterator it = begin; it != end; it++)
-				this->alloc.construct(it.base(), val);
+			for (iterator it = begin; it != end; ++it)
+				this->alloc.construct(it.GetPtr(), val);
 		}
 
 		void _reAssignVector(pointer new_data, size_type new_capacity, size_type new_size)
@@ -151,7 +155,7 @@ namespace ft {
 		explicit vector(size_type n, const value_type& val = value_type(), const allocator_type& alloc = allocator_type())
 		: _size(n), _capacity(n), _data(NULL), alloc(alloc) {
 			this->_data = this->alloc.allocate(_capacity);
-			for (size_type i = 0; i < n; i++)
+			for (size_type i = 0; i < n; ++i)
 				this->alloc.construct(this->_data + i, val);
 		}
 		template<class InputIt>
@@ -178,7 +182,7 @@ namespace ft {
 			this->alloc = another.alloc;
 			this->_data = this->alloc.allocate(another._capacity);
 
-			for (size_type i = 0; i < another._size; i++){
+			for (size_type i = 0; i < another._size; ++i){
 				this->alloc.construct(_data + i, *(another._data + i));
 			}
 			return *this;
@@ -186,11 +190,11 @@ namespace ft {
 
 		/*      		Element access			 */
 		reference			at(size_type pos)  {
-			if (!(pos < size())) throw std::out_of_range("Out of range!");
+			if (!(pos >= 0 || pos < size())) throw std::out_of_range("Out of range!");
 			return this->_data[pos];
 		}
 		const_reference		at(size_type pos) const {
-			if (!(pos < size())) throw std::out_of_range("Out of range!");
+			if (!(pos >= 0 || pos < size())) throw std::out_of_range("Out of range!");
 			return this->_data[pos];
 		}
 
@@ -236,7 +240,9 @@ namespace ft {
 		void reserve(size_type new_cap) {
 			if (new_cap > max_size()) throw std::length_error("length error");
 			if (new_cap > this->_capacity) {
+				size_type old_cap = this->_capacity;
 				this->_reAlloc(new_cap);
+				this->_fillData(this->begin() + old_cap, this->begin() + new_cap, value_type());
 			}
 		}
 		size_type capacity() const { return this->_capacity; }
@@ -309,20 +315,16 @@ namespace ft {
 		}
 
 		void push_back (const value_type &val) {
-			if (this->_size < this->_capacity)
-				this->_data[this->_size] = val;
-			else
-			{
+			if (this->_size >= this->_capacity)
 				this->_reAlloc(_increasedCapacity(this->_size));
-				this->_data[this->_size] = val;
-			}
-			this->_size++;
+			new (this->_data + this->_size) value_type(val);
+			++this->_size;
 		}
 
 		void pop_back() {
 			if (this->_size == 0) return ;
 			this->_clearData(this->end() - 1, this->end());//CHECK
-			this->_size--;
+			--this->_size;
 		}
 
 		iterator insert(iterator pos, const value_type& value) {
@@ -359,9 +361,11 @@ namespace ft {
 		template< class InputIt >/*						MEMMOVEEEEEEE								*/
 		void insert( iterator pos, InputIt first, InputIt last, typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type* = NULL) {
 			difference_type dist = std::distance(first, last);
-			size_type dst = static_cast<size_type>(dist);
-			if (this->_size + dst > this->_capacity) {
-				size_type new_size = dst + this->_size;
+			if (dist < 0)
+				throw std::range_error("Error: Wrong iterators range!");
+			size_type count = static_cast<size_type>(dist);
+			if (this->_size + count > this->_capacity) {
+				size_type new_size = count + this->_size;
 				size_type new_capacity;
 				if (new_size > this->_capacity * 2)
 					new_capacity = new_size;
@@ -372,13 +376,13 @@ namespace ft {
 				std::copy(this->begin(), pos, tmp_it);
 				tmp_it += std::distance(this->begin(), pos);
 				std::copy(first, last, tmp_it);
-				std::copy(pos, this->end(), tmp_it + dst);
+				std::copy(pos, this->end(), tmp_it + count);
 				this->clear();
 				this->_reAssignVector(new_data, new_capacity, new_size);
 			}
 			else {
 				iterator prev_end = this->end();
-				this->_size += dst;
+				this->_size += count;
 				std::copy_backward(pos, prev_end, this->end());
 				std::copy(first, last, pos);//memmove
 			}
@@ -403,26 +407,51 @@ namespace ft {
 
 	};
 
+
+	template < class T, class Alloc >
+	bool operator==(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs) {
+		if (lhs.size() != rhs.size())
+			return false;
+		typename vector<T, Alloc>::const_iterator it1 = lhs.begin();
+		typename vector<T, Alloc>::const_iterator it2 = rhs.begin();
+		for (; it1 != lhs.end(); ++it1, ++it2) {
+			if (*it1 != *it2)
+				return false;
+		}
+		return true;
+	}
+
+	template < class T, class Alloc >
+	bool operator<(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs) {
+		typename vector<T, Alloc>::const_iterator first1 = lhs.begin();
+		typename vector<T, Alloc>::const_iterator first2 = rhs.begin();
+		typename vector<T, Alloc>::const_iterator last1 = lhs.end();
+		typename vector<T, Alloc>::const_iterator last2 = rhs.end();
+
+		for (; first1 != last1; ++first1, ++first2) {
+			if (first2 == last2 || *first1 > *first2)
+				return false;
+			else if (*first1 < *first2)
+				return true;
+		}
+		return (*first2 != *last2);
+	}
+
 	template < class T, class A >
 	bool operator!=(const vector<T, A>& lhs, const vector<T, A>& rhs) {
 		return !( lhs == rhs );
 	}
-	template < class T, class A >
-	bool operator==(const vector<T, A>& lhs, const vector<T, A>& rhs) {
-		return ( lhs.size() == rhs.size() && ft::equal(lhs.begin(), lhs.end(), rhs.begin()) );
-	}
-	template < class T, class A >
-	bool operator<(const vector<T, A>& lhs, const vector<T, A>& rhs) {
-		return (ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
-	}
+
 	template < class T, class A >
 	bool operator<=(const vector<T, A>& lhs, const vector<T, A>& rhs) {
 		return !( rhs < lhs );
 	}
+
 	template < class T, class A >
 	bool operator>(const vector<T, A>& lhs, const vector<T, A>& rhs) {
 		return ( rhs < lhs );
 	}
+
 	template < class T, class A >
 	bool operator>=(const vector<T, A>& lhs, const vector<T, A>& rhs) {
 		return !( lhs < rhs );
