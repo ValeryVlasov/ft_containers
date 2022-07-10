@@ -18,13 +18,14 @@ namespace ft {
 		typedef typename iterator_traits<T*>::reference			reference;
 		typedef typename iterator_traits<T*>::difference_type	difference_type;
 		typedef std::random_access_iterator_tag					iterator_category;
-	protected:
+	private:
 		pointer _current;
 	public:
-		ft_iterator() : _current(0) {}
-		ft_iterator(pointer ptr) : _current(ptr) {}
-		ft_iterator(const ft_iterator& u) : _current(u.GetPtr()) {}
-		~ft_iterator() { this->_current = NULL; }
+		ft_iterator() : _current(NULL) {};
+		ft_iterator(pointer ptr) : _current(ptr) {};
+		template < class U >
+		ft_iterator(const ft_iterator<U>& another) : _current(another.GetPtr()) {};
+		~ft_iterator() { this->_current = NULL; };
 
 		pointer GetPtr(void) const { return _current; }
 
@@ -37,8 +38,8 @@ namespace ft {
 		reference operator->() const { return this->_current; }
 
 
-		reference operator[](difference_type n) { return &(*this + n); }
-		const reference operator[](difference_type n) const { return &(*this + n); }
+		reference operator[](difference_type n) { return *(this->_current + n); }
+		const reference operator[](difference_type n) const { return *(this->_current + n); }
 
 		ft_iterator& operator++() {
 			++_current;
@@ -51,20 +52,20 @@ namespace ft {
 		}
 
 		ft_iterator operator--(int) {
-			ft_iterator _it = *this;
+			ft_iterator tmp(*this);
 			--_current;
-			return _it;
+			return tmp;
 		}
 
 		ft_iterator operator++(int) {
-			ft_iterator _it = *this;
+			ft_iterator tmp(*this);
 			++_current;
-			return _it;
+			return tmp;
 		}
 
 		ft_iterator operator-(difference_type n) const {
 			ft_iterator tmp(*this);
-			return (tmp -= n);
+			return ft_iterator(tmp -= n);
 		}
 
 		difference_type operator-(const ft_iterator &other) const { return _current - other.GetPtr(); }
@@ -100,18 +101,16 @@ namespace ft {
 	template < class T, class Alloc = std::allocator<T> >
 	class vector
 	{
-	protected:
-
 	public:
 		typedef Alloc											allocator_type;
-		typedef typename allocator_type::value_type				value_type;
+		typedef T												value_type;
 		typedef typename allocator_type::difference_type		difference_type;
 		typedef typename allocator_type::size_type				size_type;
 		typedef typename allocator_type::reference				reference;
 		typedef typename allocator_type::const_reference		const_reference;
 		typedef typename allocator_type::pointer				pointer;
 		typedef typename allocator_type::const_pointer			const_pointer;
-		typedef ft_iterator<T>									iterator;// ft::reverse_iterator<ft_iterator<Alloc::value_type>>
+		typedef ft_iterator<T>									iterator;
 		typedef ft_iterator<const T>							const_iterator;
 		typedef ft::reverse_iterator<iterator>					reverse_iterator;
 		typedef ft::reverse_iterator<const_iterator>			const_reverse_iterator;
@@ -190,11 +189,11 @@ namespace ft {
 
 		/*      		Element access			 */
 		reference			at(size_type pos)  {
-			if (!(pos >= 0 || pos < size())) throw std::out_of_range("Out of range!");
+			if (!(pos >= 0 && pos < size())) throw std::out_of_range("Out of range!");
 			return this->_data[pos];
 		}
 		const_reference		at(size_type pos) const {
-			if (!(pos >= 0 || pos < size())) throw std::out_of_range("Out of range!");
+			if (!(pos >= 0 && pos < size())) throw std::out_of_range("Out of range!");
 			return this->_data[pos];
 		}
 
@@ -429,7 +428,7 @@ namespace ft {
 		typename vector<T, Alloc>::const_iterator last2 = rhs.end();
 
 		for (; first1 != last1; ++first1, ++first2) {
-			if (first2 == last2 || *first1 > *first2)
+			if (first2 == last2 || *first2 < *first1)
 				return false;
 			else if (*first1 < *first2)
 				return true;

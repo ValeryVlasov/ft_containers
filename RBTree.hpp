@@ -29,7 +29,7 @@ namespace ft {
 		Node(const T &k, Color c, Node *p, Node *l, Node *r)
 			: key(k), color(c), parent(p), left(l), right(r) {}
 
-		Node& operator=(const Node& another){
+		Node& operator=(const Node& another) {
 			key = another.key;
 			color = another.color;
 			left = another.left;
