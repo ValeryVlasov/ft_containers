@@ -1,5 +1,7 @@
-#ifndef FTUTILITY_HPP
-#define FTUTILITY_HPP
+#ifndef UTILITY_HPP_
+#define UTILITY_HPP_
+
+#include <iterator>
 
 namespace ft {
 	struct output_iterator_tag {	};
@@ -29,7 +31,7 @@ namespace ft {
 	template < class T >
 	struct iterator_traits< T* >
 	{
-		typedef size_t							difference_type;
+		typedef ptrdiff_t 						difference_type;
 		typedef T								value_type;
 		typedef T*								pointer;
 		typedef T&								reference;
@@ -50,12 +52,12 @@ namespace ft {
 	class reverse_iterator
 	{
 	public:
-		typedef Iter iterator_type;
-		typedef typename iterator_traits<Iter>::pointer				pointer;
-		typedef typename iterator_traits<Iter>::reference			reference;
-		typedef typename iterator_traits<Iter>::value_type			value_type;
-		typedef typename iterator_traits<Iter>::difference_type		difference_type;
-		typedef typename iterator_traits<Iter>::iterator_category	iterator_category;
+		typedef Iter													iterator_type;
+		typedef typename ft::iterator_traits<Iter>::pointer				pointer;
+		typedef typename ft::iterator_traits<Iter>::reference			reference;
+		typedef typename ft::iterator_traits<Iter>::value_type			value_type;
+		typedef typename ft::iterator_traits<Iter>::difference_type		difference_type;
+		typedef typename ft::iterator_traits<Iter>::iterator_category	iterator_category;
 	protected:
 		iterator_type current;
 	public:
@@ -106,19 +108,19 @@ namespace ft {
 	reverse_iterator<Iterator> operator+(typename reverse_iterator<Iterator>::difference_type n,
 			const reverse_iterator<Iterator>& rev_it) {
 		return reverse_iterator<Iterator>(rev_it - n);
-	};
+	}
 
 	template <class Iterator>
 	reverse_iterator<Iterator> operator-(typename reverse_iterator<Iterator>::difference_type n,
 			const reverse_iterator<Iterator>& rev_it) {
 		return reverse_iterator<Iterator>(rev_it + n);
-	};
+	}
 
 	template <class Iterator>
 	typename reverse_iterator<Iterator>::difference_type operator-(const reverse_iterator<Iterator>& lhs,
 			const reverse_iterator<Iterator>& rhs) {
 		return (rhs.base() - lhs.base());
-	};
+	}
 
 	template < class Iterator1, class Iterator2 >
 	bool operator==(const reverse_iterator<Iterator1>& lhs, const reverse_iterator<Iterator2>& rhs) { return lhs.base() == rhs.base(); }
@@ -218,83 +220,7 @@ namespace ft {
 	template <>
 	struct is_integral<unsigned long long int> : public integral_constant<unsigned long long int, true> {};
 
-	template < class T, class U >
-	struct pair {
-		typedef T	first_type;
-		typedef U	second_type;
-		first_type	first;
-		second_type	second;
 
-		pair(void) : first(first_type()), second(second_type()) {}
-
-		pair(const T& lhs, const U& rhs) : first(lhs), second(rhs) {}
-
-		template< class V, class W >
-			pair(const pair<V, W>& pr) : first(pr.first), second(pr.second) {}
-
-		~pair(void) {}
-
-		pair& operator=(const pair& another) {
-			this->first = another.first;
-			this->second = another.second;
-			return *this;
-		}
-	};
-
-	template < class T, class U >
-	pair<T, U> make_pair(const T& lhs, const U& rhs) {
-		return pair<T, U>(lhs, rhs);
-	}
-
-//	template < class T >
-//	bool operator!=(const T& lhs, const T& rhs) {
-//		return !( lhs == rhs );
-//	}
-
-	template < class T, class U >
-	bool operator!=(const pair<T, U>& lhs, const pair<T, U>& rhs) {
-		return !( lhs == rhs );
-	}
-
-	template < class T, class U >
-	bool operator==(const pair<T, U>& lhs, const pair<T, U>& rhs) {
-		return lhs.first == rhs.first && lhs.second == rhs.second;
-	}
-
-	template < class T, class U >
-	bool operator<(const pair<T, U>& lhs, const pair<T, U>& rhs) {
-		return lhs.first < rhs.first || (!(rhs.first < lhs.first) && lhs.second < rhs.second);
-	}
-
-	template < class T >
-	bool operator<=(const T& lhs, const T& rhs) {
-		return !( rhs < lhs );
-	}
-
-	template < class T, class U >
-	bool operator<=(const pair<T, U>& lhs, const pair<T, U>& rhs) {
-		return !( rhs < lhs );
-	}
-
-	template < class T >
-	bool operator>(const T& lhs, const T& rhs) {
-		return rhs < lhs;
-	}
-
-	template < class T, class U >
-	bool operator>(const pair<T, U>& lhs, const pair<T, U>& rhs) {
-		return rhs < lhs;
-	}
-
-	template < class T >
-	bool operator>=(const T& lhs, const T& rhs) {
-		return !( lhs < rhs );
-	}
-
-	template < class T, class U >
-	bool operator>=(const pair<T, U>& lhs, const pair<T, U>& rhs) {
-		return !( lhs < rhs );
-	}
 
 
 	template< class InIt1, class InIt2 >
@@ -332,6 +258,6 @@ namespace ft {
 		}
 		return true;
 	}
-}
+}//ft
 
 #endif

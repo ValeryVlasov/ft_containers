@@ -1,12 +1,12 @@
-#ifndef RED_BLACK_TREE_HPP
-#define RED_BLACK_TREE_HPP
+#ifndef RED_BLACK_TREE_HPP_
+#define RED_BLACK_TREE_HPP_
 
 #include <memory>
 #include <utility>
 #include <iostream>
 
 #include "pair.hpp"
-#include "iterator.hpp"
+#include "utility.hpp"
 
 template< class T, class Compare = std::less<T>, class Allocator = std::allocator<T> >
 class RedBlackTree;
@@ -26,7 +26,7 @@ namespace ft {
 		Node(const Node& another)
 			: key(another.key), color(another.color), parent(another.parent),
 			left(another.left), right(another.right) {}
-		Node(const T &value, Color c, Node *p, Node *l, Node *r)
+		Node(const T &k, Color c, Node *p, Node *l, Node *r)
 			: key(k), color(c), parent(p), left(l), right(r) {}
 
 		Node& operator=(const Node& another){
@@ -55,3 +55,6 @@ namespace ft {
 
 
 /*********************				***********************/
+
+
+#endif

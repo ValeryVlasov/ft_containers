@@ -1,5 +1,5 @@
-#ifndef FTSTACK_HPP
-#define FTSTACK_HPP
+#ifndef FT_STACK_HPP_
+#define FT_STACK_HPP_
 
 #include "vector.hpp"
 

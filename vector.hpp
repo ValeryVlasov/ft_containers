@@ -1,5 +1,5 @@
-#ifndef FTVECTOR_HPP
-#define FTVECTOR_HPP
+#ifndef FT_VECTOR_HPP_
+#define FT_VECTOR_HPP_
 
 #include <vector>
 #include <iterator>

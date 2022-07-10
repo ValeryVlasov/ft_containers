@@ -4,7 +4,7 @@ FOLDER	=	./
 
 SRC_LIST	=	ft_main.cpp
 
-HDRS_LIST	=	vector.hpp map.hpp stack.hpp set.hpp
+HDRS_LIST	=	vector.hpp map.hpp stack.hpp set.hpp pair.hpp
 
 SRC	=	$(addprefix $(FOLDER), $(SRC_LIST))
 
